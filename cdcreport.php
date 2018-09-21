@@ -104,7 +104,31 @@ for($j=0; $j<count($respuesta2[3]);$j++)
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.5/jspdf.debug.js"></script>
+<body>
+	<script type="text/javascript" src="jspdf.js">
+  <script type="text/javascript" src="html2canvas.js">
+  function genPDF(){
+
+//intento de usar jsPDF y html2canvas para crear imagen de página y pasarla a PDF
+//por alguna razón no quiere descargar el archivo
+	  
+		html2canvas(document.body(
+				onrendered: function (canvas){
+
+					var img =canvas.toDataURL("image/png");
+					var doc = new jsPDF();
+					doc.addImage(img,'JPEG',20,20);
+					doc.save('test.pdf');
+					
+
+					});
+	  }
+ 
+ </script>
+ <body>
+ <a href="javascript:genPDF()">Download PDF</a>
+ </body>
+
 <?php 
 echo $OUTPUT->footer();
 ?>
