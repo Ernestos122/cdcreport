@@ -11,9 +11,13 @@ $PAGE->set_heading('Test CDC Charts');
 $PAGE->set_pagelayout('standard');
 echo $OUTPUT->header();
 
-$sales = new \core\chart_series('Sales', [1000, 1170, 660, 1030]);
-$expenses = new \core\chart_series('Expenses', [400, 460, 1120, 540]);
-$labels = ['1', '2', '3', '4'];
+##Forma simple y actual de guardar cómo PDF e imprimir.
+
+echo'<form>
+<input type=button name=print value="Imprimir/Guardar PDF" onClick="window.print()">
+</form>';
+
+echo '';
 
 $sql="select r.survey_id, userid, group_concat(question_id separator '#') qids, group_concat(concat(rq.name, ' ', rq.content)  separator '#') qcontents, group_concat(response separator '#') qresponses
 from mdl_questionnaire_response r
@@ -35,11 +39,15 @@ left join mdl_questionnaire_response_date rd on (rd.response_id = r.id)
 left join mdl_questionnaire_response_other ro on (ro.response_id = r.id)
 left join mdl_questionnaire_response_rank rr on (rr.response_id = r.id)*/
 ;";
-
+ 
 
 
 ## Obtengo datos de la tremenda query
 $serietest=$DB->get_recordset_sql($sql);
+
+$pregunta=$serietest->qcontents;
+
+
 
 
 ##Brutamente las coloco en una array
@@ -48,8 +56,14 @@ foreach($serietest as $respuesta)
 {
       
     $respuesta1[$i]=$respuesta->qresponses; 
+
+    
     $i=$i+1;
 }
+
+
+
+
 
 
 ##Brutamente hago un array bidimensional, considerando que
@@ -63,72 +77,41 @@ foreach($respuesta1 as $array)
     $i=$i+1;
 }
 
-
 ##Ahora crearé un "Horizontal Line Chart" por cada pregunta realizada (FALTA AGREGAR TITULOS)
 ##(FALTA FORMATEAR BIEN GRÁFICOS)
 
-for($j=0; $j<count($respuesta2[3]);$j++)
+
+for($i=0; $i<count($respuesta2[3]);$i++)
 {
 ### $j--->Pregunta en cuestión
 
 
-    for($i=3; $i<count($respuesta1);$i++)### OJO: empieza desde 3 por que los primeros 3 usuarios son
-                                         ### los usuarios parte del sistema (al menos en mi caso, podríamos
-                                         ### modificar Query para sólo respuestas no nulas)
-    {
-        ### $---> Respuestas de la pregunta en cuestión
+    
+    for($j=3; $j < count($respuesta1);$j++){
+             
+        $rank[$j]= $respuesta2[$j][$i];
         
-        $ranks[$i]=$respuesta2[$i][$j];
     }
-
-    $ranks=array_count_values($ranks);
-    ### Con esto cuento frecuencias fácilmente
-    $values= array_values($ranks);
-    $keys= array_keys($ranks);
+   
+    $rank1=array_count_values($rank);
+    ### Con esto saco frecuencias fácilmente
+    $values= array_values($rank1);
+    $keys= array_keys($rank1);
     ### Preparo data para pasárselo al chart
     $chartSeries = new \core\chart_series('Respuestas', $values);
     ### Creo una serie
-
     $chart = new \core\chart_bar();
-    $chart->set_title('HORIZONTAL BAR CHART'); ### (CAMBIAR POR TÍTULO DE LA PREGUNTA)
+    $chart->set_title("Pregunta ".($i+1)); ### (CAMBIAR POR TÍTULO DE LA PREGUNTA)
     $chart->set_horizontal(true); ### Según lo visto por el PPT, eran horizontales
     $chart->add_series($chartSeries); ### Añado la serie (Es posible añadir varias)
     $chart->set_labels($keys); ### Labels dependiendo de las respuestas capturadas
-
+    $xaxis= new \core\chart_axis();
+    ### Frecuencias se miden sólo en enteros (duh)
+    $xaxis->set_stepsize(1);
+    $chart->set_xaxis($xaxis);
     echo $OUTPUT->render($chart); ### Se proyecta Chart
 
 }
-## JS PDF
-?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<body>
-	<script type="text/javascript" src="jspdf.js">
-  <script type="text/javascript" src="html2canvas.js">
-  function genPDF(){
-
-//intento de usar jsPDF y html2canvas para crear imagen de página y pasarla a PDF
-//por alguna razón no quiere descargar el archivo
-	  
-		html2canvas(document.body(
-				onrendered: function (canvas){
-
-					var img =canvas.toDataURL("image/png");
-					var doc = new jsPDF();
-					doc.addImage(img,'JPEG',20,20);
-					doc.save('test.pdf');
-					
-
-					});
-	  }
- 
- </script>
- <body>
- <a href="javascript:genPDF()">Download PDF</a>
- </body>
-
-<?php 
 echo $OUTPUT->footer();
 ?>
