@@ -7,7 +7,7 @@ require_capability('moodle/site:config', $context);
 
 $PAGE->set_context($context);
 $PAGE->set_url('/lib/tests/other/cdcreport.php');
-$PAGE->set_heading('Test CDC Charts');
+$PAGE->set_heading('Encuesta CDC 1 TEST');
 $PAGE->set_pagelayout('standard');
 echo $OUTPUT->header();
 
@@ -85,6 +85,7 @@ for($i=0; $i<count($respuesta2[3]);$i++)
 {
 ### $j--->Pregunta en cuestión
 
+echo"<table border=0 width=100><tr><td>";
 
     
     for($j=3; $j < count($respuesta1);$j++){
@@ -110,7 +111,21 @@ for($i=0; $i<count($respuesta2[3]);$i++)
     $xaxis->set_stepsize(1);
     $chart->set_xaxis($xaxis);
     echo $OUTPUT->render($chart); ### Se proyecta Chart
-
+    echo"</td>";
+    
+    for($k=0;$k< count($keys);$k++)
+    {
+        (float)$promedio[$k]=$keys[$k]*$values[$k];
+    }
+    
+    $promedioFinal=array_sum($promedio)/count($promedio);
+    
+ 
+    echo"<td> Promedio " .$promedioFinal."<br></td>";
+    
+    
+    
+    echo "</tr></table>";
 }
 
 echo $OUTPUT->footer();
