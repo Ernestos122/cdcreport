@@ -61,11 +61,6 @@ foreach($serietest as $respuesta)
     $i=$i+1;
 }
 
-
-
-
-
-
 ##Brutamente hago un array bidimensional, considerando que
 ## X es la persona única e Y son las respuestas a las preguntas
 ## (cada índice siendo pregunta única):
@@ -79,7 +74,6 @@ foreach($respuesta1 as $array)
 
 ##Ahora crearé un "Horizontal Line Chart" por cada pregunta realizada (FALTA AGREGAR TITULOS)
 ##(FALTA FORMATEAR BIEN GRÁFICOS)
-
 
 for($i=0; $i<count($respuesta2[3]);$i++)
 {
@@ -95,6 +89,8 @@ echo"<table border=0 width=100><tr><td>";
     }
    
     $rank1=array_count_values($rank);
+    
+    ksort($rank1);
     ### Con esto saco frecuencias fácilmente
     $values= array_values($rank1);
     $keys= array_keys($rank1);
@@ -110,6 +106,8 @@ echo"<table border=0 width=100><tr><td>";
     ### Frecuencias se miden sólo en enteros (duh)
     $xaxis->set_stepsize(1);
     $chart->set_xaxis($xaxis);
+    $chart->get_yaxis(0,true)->set_label("Rank");
+    $chart->get_xaxis(0,true)->set_label("Frecuencia");
     echo $OUTPUT->render($chart); ### Se proyecta Chart
     echo"</td>";
     
@@ -121,7 +119,7 @@ echo"<table border=0 width=100><tr><td>";
     $promedioFinal=array_sum($promedio)/count($promedio);
     
  
-    echo"<td> Promedio " .$promedioFinal."<br></td>";
+    echo"<td> Promedio " .round($promedioFinal,2)."<br></td>";
     
     
     
